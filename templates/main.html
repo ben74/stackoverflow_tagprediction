@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head>
+	<title>Home</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+	<header>
+		<h2>StackOverFlow Question Tagger</h2>
+	</header>
+
+	<fieldset class="ml-container">
+
+		<form action="{{ url_for('predict')}}" method="POST">
+		    <p>Enter Your TItle Here:</p>
+            <input name=title placeholder="  Trouble with .. ">
+		    <p>Enter Your Question Here:</p>
+		    <textarea name="body" placeholder=" Here is my question : i'm having trouble with .."></textarea>
+		    <br/>
+		    <input type="submit" class="btn-info" value="Predict the tags for the given input">
+{% if postdata %}            
+    {% if tags %}
+        <h2 style="color:blue;"> {{ tags }} </h2>
+    {% else %}
+        <h2 style="color:red;">No Tags Found!</h2>
+    {% endif %}
+{% endif %}
+            
+	    </form>
+
+	</fieldset>
+</body>
+</html>

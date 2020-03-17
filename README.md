@@ -1,2 +1,3 @@
-# stackoverflow_tagprediction
-stackoverflow_tagprediction
+# Stackoverflow tag prediction
+---
+Machine learning using Latent Dirichtlet Allocation and supervised models such as 
