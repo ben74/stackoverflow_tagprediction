@@ -1,5 +1,6 @@
 # -*-coding:utf-8 -*
 #---
+import joblib
 import IPython
 import sklearn.preprocessing
 import seaborn as sns
@@ -43,7 +44,7 @@ pd.set_option('display.width', 1200)
 plt.style.use('fivethirtyeight')
 plt.rcParams["figure.figsize"] = (24, 12)
 plt.rcParams['figure.facecolor'] = 'white'
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+#warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings('ignore')
 cnopts = pysftp.CnOpts()
 cnopts.hostkeys = None
@@ -88,28 +89,6 @@ def message(x):
     now = datetime.datetime.now()
     url = 'https://1.x24.fr/a/bus.php'
     r = requests.post(url, data={0: x})
-
-
-def ftpput(fn, cd=0, aszip=0):
-    global sftp, cnopts
-    if(type(fn) == str):  # solo
-        fn = [fn]
-    if(cd == 0):
-        cd = sftp['cd']
-    with pysftp.Connection(sftp['h'], username=sftp['u'], password=sftp['p'], cnopts=cnopts) as connection:
-        with connection.cd(cd):
-            for i in fn:
-                p(i)
-                # p(i.split('.')[-1]);p(os.path.getsize(i))
-                if((i.split('.')[-1] not in ['zip', 'jpg', 'png', 'webp']) & (os.path.getsize(i) > 5000000 | aszip)):
-                    os.system('rm -f ' + i + '.zip')
-                    os.system('zip ' + i + '.zip ' + i)
-                    i = i + '.zip'
-                connection.put(i)
-                now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")  # -%s
-                #, end = ' '
-                p('put:' + sftp['web'] + i + '?a=' + now,end='')
-
 # re is not defined ... whut ???
 
 
@@ -311,7 +290,7 @@ def fgc(fn, join=True):
         return "\n".join(lines)
     return lines
 
-def nf(a,b=0,c=0,d=0,e=0,f=0,g=0,h=0,i=0,j=0):
+def nf(a=0,b=0,c=0,d=0,e=0,f=0,g=0,h=0,i=0,j=0,end=0):
     return;
     
 #disable it : p=nf
@@ -383,8 +362,12 @@ def ftpput(fn, cd=0, aszip=0):
     with pysftp.Connection(sftp['h'], username=sftp['u'], password=sftp['p'], cnopts=cnopts) as connection:
         with connection.cd(cd):
             for i in fn:
-                # p(i.split('.')[-1]);p(os.path.getsize(i))
-                if((i.split('.')[-1] not in ['zip', 'jpg', 'png', 'webp', 'tgz', 'mp4', 'mp3', 'mkv']) & (os.path.getsize(i) > 5000000 | aszip)):
+                p(i.split('.')[-1], ' ',i, ' ' ,os.path.exists(i))
+                if(not os.path.exists(i)):
+                  p('!!!!',i,' not exists')
+                  assert(False)
+                  continue
+                if((i.split('.')[-1] not in ['zip', 'jpg', 'png', 'webp', 'tgz', 'mp4', 'mp3', 'mkv','pik']) & (os.path.getsize(i) > 5000000 | aszip)):
                     os.system('rm -f ' + i + '.zip')
                     os.system('zip ' + i + '.zip ' + i)
                     i = i + '.zip'
@@ -1117,7 +1100,7 @@ def unik(x, aslist=False):
     
 unique=unik
 
-def save(
+def _save(
         _globals,
         exclusions=[],
         fn='allVars',
@@ -1158,7 +1141,7 @@ def save(
         size[i] = sys.getsizeof(_globals[i])
         dumpedsize[i] = round(os.stat(i + '.pickle').st_size)  # /1024/1024
     # p(arsort(size))
-    return dumpedsize
+    #return dumpedsize
 
     if(zip):
         os.system('rm -f ' + fn + '.tgz')
@@ -1198,15 +1181,12 @@ def resume(fn='allVars'):  # restore
         os.system('tar -ztf ' + fn + '.tgz > filelist.list')
         o = fgc('filelist.list', join=False)
         p('list of files within tgz:', o)
-
         os.system('tar xf ' + fn + '.tgz')
         #o=subprocess.check_output('tar xf '+fn+'.tgz');p(o);
-
         for i in o:
             i2 = i.replace('.pickle', '')
             _allVars[i2] = fgcp(i2)
     return _allVars
-
 
 load = restore = resume
 

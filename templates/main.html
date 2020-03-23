@@ -1,5 +1,5 @@
 <!DOCTYPE html><html><head>
-	<title>Home</title>
+	<title>Stack Overflow Question Tag Prediction</title>
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -9,23 +9,30 @@
 
 	<fieldset class="ml-container">
 
-		<form action="{{ url_for('predict')}}" method="POST">
+		<form action="/" method="POST">
 		    <p>Enter Your TItle Here:</p>
-            <input name=title placeholder="  Trouble with .. ">
+            <input name=title placeholder="  Trouble with .. " value="{{title}}"/>
 		    <p>Enter Your Question Here:</p>
-		    <textarea name="body" placeholder=" Here is my question : i'm having trouble with .."></textarea>
+		    <textarea name="body" placeholder=" Here is my question : i'm having trouble with ..">{{body}}</textarea>
 		    <br/>
-		    <input type="submit" class="btn-info" value="Predict the tags for the given input">
+		    <input type="submit" class="btn-info" value="Predict the tags for the given input" accesskey="s">
 {% if postdata %}            
     {% if tags %}
-        <h2 style="color:blue;"> {{ tags }} </h2>
+        <h2 style="color:blue;">Supervised Tags : {{ tags }} </h2>
     {% else %}
         <h2 style="color:red;">No Tags Found!</h2>
+    {% endif %}
+    {% if ldatags %}
+        <h2 style="color:blue;">Lda tags : {{ ldatags }} </h2>
     {% endif %}
 {% endif %}
             
 	    </form>
 
 	</fieldset>
+<pre>    More at : https://github.com/ben74/stackoverflow_tagprediction
+https://stackoverflow.com/questions
+</pre>    
 </body>
 </html>
+<!-- {{ url_for('predict')}} -->

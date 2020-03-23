@@ -1,0 +1,10 @@
+html{font-size:10px;}
+body{background:#F07;font:2rem assistant,roboto,calibri,corbel,verdana;}
+*{transition:all .5sec}
+input,textarea{width:100%;padding-left:1rem;font-size:2rem}
+textarea{height:30vh;}
+
+input[type=submit]{
+    cursor:pointer;height:5vh;font-size:4rem;
+}
+input[type=submit]:hover{filter:invert(100%);}
