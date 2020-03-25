@@ -56,6 +56,10 @@ verbose = 0
 sftp = {'cd': '-', 'web': '-', 'h': '-', 'u': '-', 'p': '-'}
 
 considerEmpty = [np.inf, -np.inf, np.nan, 0, 'na', '']
+
+sendimages2ftp=1
+removepng=1
+useFTP=True
 # }shortcuts{
 
 
@@ -95,8 +99,6 @@ def message(x):
 def filename(x):
     return re.sub(r"[^a-z0-9\-_,\.:]+", '-', x.lower())
 
-sendimages2ftp=1
-removepng=1
 def webp(x):
     x2 = x.replace('.png', '') + '.webp'
     webplib.cwebp(x, x2, '-q 70')
@@ -179,6 +181,9 @@ def cleanData(inputDf, fillStrings='na', fillInt=0, considerEmpty=[
 
 
 def ftpget(fn, cd=0):
+    if(not useFTP):
+        p('ftp disabled')
+        return;
     global sftp, cnopts
     if(cd == 0):
         cd = sftp['cd']
@@ -192,6 +197,9 @@ def ftpget(fn, cd=0):
 
 
 def ftpputzip(fn, cd=0):
+    if(not useFTP):
+        p('ftp disabled')
+        return;
     if(type(fn) == str):  # solo
         fn = [fn]
     zipped = []
@@ -203,6 +211,9 @@ def ftpputzip(fn, cd=0):
 
 
 def ftpexists(fn, cd=0):
+    if(not useFTP):
+        p('ftp disabled')
+        return;
     if(cd == 0):
         cd = sftp['cd']
     liste = ftpls(cd)
@@ -266,6 +277,9 @@ def getFile(fns, sep='\t'):
 
 
 def ftpls(cd=0):
+    if(not useFTP):
+        p('ftp disabled')
+        return;
     global sftp, cnopts
     if(cd == 0):
         cd = sftp['cd']
@@ -350,8 +364,15 @@ def uniqueValues(x):
   x = np.array(x) 
   return list(np.unique(x)) 
 
-def extractTags(x):
-  return ' '.join(re.findall(r'(?<=\<)[^\<\>]+(?=\>)', x))  
+def extractTagsn(x):
+  return re.findall(r'(?<=\<)[^\<\>]+(?=\>)', x)
+  
+def extractTags(x,join=1):
+  res=re.findall(r'(?<=\<)[^\<\>]+(?=\>)', x)
+  if join:
+    return ' '.join(res)
+  return res
+  
 
 def ftpput(fn, cd=0, aszip=0):
     global sftp, cnopts
@@ -706,6 +727,20 @@ def FPCP(fn, data):
     pickle.dump(data, f, protocol=-1)
 # d=pickle.dumps(data);f.write(d);f.close();
 # can't pickle _thread.RLock objects
+    
+#ModuleNotFoundError: No module named 'sklearn.linear_model._logistic
+class rewriteClass(pickle.Unpickler):
+    def find_class(self, module, name):
+        renamed_module = module
+        a=module.split('.')        
+        if((a[-1][0]=='_') & (a[-1] not in ['_pickle'])):
+            p(a[-1],a[-1][0])
+            del(a[-1])
+            renamed_module='.'.join(a)
+        
+        if module == "sklearn.linear_model._logistic":
+            renamed_module = "sklearn.linear_model"
+        return super(rewriteClass, self).find_class(renamed_module, name)
 
 
 def fgcp(fn):
@@ -716,7 +751,8 @@ def fgcp(fn):
     if(os.path.isfile(fn)):
         gc.disable()
         data = open(fn, "rb")
-        ret = pickle.load(data)
+        ret = rewriteClass(data).load()
+        #ret = pickle.load(data)
         data.close()
         gc.enable()
         return ret
@@ -913,6 +949,7 @@ def ramUsage():
     process = psutil.Process(os.getpid())
     return round(process.memory_info().rss/1024/1024,2)  # in M
     
+#topramusageperkey
 def ramUsagePerKey():
   gk=list(globals().keys())
   vpk={}

@@ -1,3 +1,4 @@
+#pip3 install numpy joblib Ipython sklearn seaborn requests flask webptools pysftp
 #todo : inclure l'import des modèles ci dessous
 #todo : ajouter fonctions de cleaning sur le texte en input
 #modèle final : aller sur stack overflow au hazard ou via sql explorer et tester
@@ -9,14 +10,15 @@ import numpy as np
 import alpow;from alpow import *
 ##
 np.random.seed(1983)
-useFTP=False;
-sendimages2ftp=0
 #dont store credentials within the repository
 if os.path.exists('credentials.py'):
     import credentials;
     alpow.sftp=credentials.sftp
     #p(alpow.sftp);
-    p('sftp online:',ftpls()[0],'\n\n\n') 
+    p('sftp online:',ftpls()[0],'\n\n\n')
+else:
+    alpow.useFTP=False;
+    sendimages2ftp=0
     
 '''
 import sklearn.svm,sklearn.preprocessing,pickle,joblib
