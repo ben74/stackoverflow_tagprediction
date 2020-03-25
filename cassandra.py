@@ -1,4 +1,4 @@
-#pip3 install numpy joblib Ipython sklearn seaborn requests flask webptools pysftp
+#prod:cd stackoverflow_tagprediction;git pull;python3 cassandra.py 2>&1 | tee cassandra.log
 #todo : inclure l'import des modèles ci dessous
 #todo : ajouter fonctions de cleaning sur le texte en input
 #modèle final : aller sur stack overflow au hazard ou via sql explorer et tester
@@ -6,6 +6,10 @@
 #rm bestQuickModel.tgz;rm bestQuickModel.pickle;cd ~/home/python;py3 cassandra.py;#has 344 tags, not 358
 #gad *.tgz;gu;git push -f
 #}{Alpow
+import os
+import sys
+if('pysftp' not in list(sys.modules)):
+    os.system('pip3 install numpy joblib Ipython sklearn seaborn requests flask webptools pysftp')
 import numpy as np
 import alpow;from alpow import *
 ##
@@ -286,6 +290,6 @@ def predict():
     return render_template('main.html', tags1 = tags1, tags2 = tags2, ldatags = ldatags,title=title, body=body, postdata = 1)
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0',debug=True)       
+	app.run(host='0.0.0.0',port=8080,debug=True)       
 
 
