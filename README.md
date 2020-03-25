@@ -1,3 +1,3 @@
-# Stackoverflow tag prediction
+# Cassandra : a Stackoverflow tag prediction application
 ---
-Machine learning using Latent Dirichtlet Allocation and supervised models such as 
+Written in python, Machine learning learning course subject ( OpenClassRooms, Centrale Sup'Elec ), using Latent Dirichtlet Allocation and supervised models such as logisticRegression, linearSVC

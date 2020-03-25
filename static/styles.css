@@ -1,6 +1,13 @@
-html{font-size:10px;}
-body{background:#F07;font:2rem assistant,roboto,calibri,corbel,verdana;}
-*{transition:all .5sec}
+html{font-size:10px;background:#000 url('//x24.fr/0/b1.jpg##20200103SkiRandoClusaz') top center fixed;}/*background-size:110%;background-repeat:repeat;*/
+body{height:100vh;color:#FFF;margin:0;}
+body,pre{font:2rem 'Dancing Script',Assistant,roboto,calibri,corbel,verdana;}
+*{transition:all .5s}
+a{color:#0F0;}
+a:hover{color:#FC0;}
+
+fieldset{margin:0 2vw;background:rgba(255,255,255,0.1);}
+legend{padding:0 3rem;}/*margin:auto;*/
+
 input,textarea{width:100%;padding-left:1rem;font-size:2rem}
 textarea{height:30vh;}
 
@@ -8,3 +15,5 @@ input[type=submit]{
     cursor:pointer;height:5vh;font-size:4rem;
 }
 input[type=submit]:hover{filter:invert(100%);}
+h1,h2{color:#F00;margin:0;}
+

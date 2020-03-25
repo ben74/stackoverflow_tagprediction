@@ -9,9 +9,15 @@ import numpy as np
 import alpow;from alpow import *
 ##
 np.random.seed(1983)
-
-
-
+useFTP=False;
+sendimages2ftp=0
+#dont store credentials within the repository
+if os.path.exists('credentials.py'):
+    import credentials;
+    alpow.sftp=credentials.sftp
+    #p(alpow.sftp);
+    p('sftp online:',ftpls()[0],'\n\n\n') 
+    
 '''
 import sklearn.svm,sklearn.preprocessing,pickle,joblib
 from sklearn.multiclass import OneVsRestClassifier
@@ -254,8 +260,9 @@ p=print;#resume
 
 # 
 #}{Falsk
+
 from flask import Flask,render_template,url_for,request
-app = Flask(__name__)
+app = Flask(__name__)#, root_path = '/'
 
 @app.route('/')
 def home():
@@ -270,10 +277,11 @@ def predict():
         body = request.form['body']                
         newdf = pd.DataFrame({'title':[title],'body':[body],'tags':''})
         tags1,tags2=EvaluateBagModel(globals()[mdlname],newdf,g('bagOfWords_'+k3))
-        tags=' , '.join(tags1)
+        tags1=' , '.join(tags1)
+        tags2=' , '.join(tags2)
         ldatags=' , '.join(ldaResults(newdf,best_lda_model,vectorizer_train,df_topics_tags_norm,nb=2))
         #tags=text2tfidf(globals()[k+mdln],globals()[k+'mlbTrain'],globals()[k+'TFvectorizer'],newdf)  
-    return render_template('main.html', tags = tags, ldatags = ldatags,title=title, body=body, postdata = 1)
+    return render_template('main.html', tags1 = tags1, tags2 = tags2, ldatags = ldatags,title=title, body=body, postdata = 1)
 
 if __name__ == '__main__':
 	app.run(debug=True)       
