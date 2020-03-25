@@ -1,7 +1,5 @@
 # -*-coding:utf-8 -*
 #---
-import joblib
-import IPython
 import sklearn.preprocessing
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -53,7 +51,13 @@ lab_enc = sklearn.preprocessing.LabelEncoder()
 heightPerGraph = widthPerGraph = 6
 demo = 1
 verbose = 0
-sftp = {'cd': '-', 'web': '-', 'h': '-', 'u': '-', 'p': '-'}
+#empty parameters to be overriden
+def setG(k,v):
+    if(k in globals().keys()):
+        del(globals()[k]);
+    globals()[k]=v
+    
+setG('sftp',{'cd': '', 'web': '-', 'h': '-', 'u': '-', 'p': '-'})
 
 considerEmpty = [np.inf, -np.inf, np.nan, 0, 'na', '']
 
@@ -64,6 +68,11 @@ useFTP=True
 
 
 # }functions{
+
+
+def g(x):
+    return globals()[x]
+
 def md5(x):
     res = hashlib.md5(str(x).encode())
     return res.hexdigest()
@@ -179,25 +188,39 @@ def cleanData(inputDf, fillStrings='na', fillInt=0, considerEmpty=[
     p('_' * 140)
     return df
 
+def rg(x):
+  import requests
+  r=requests.get(webRepo+sftp['cd']+'/'+x)
+  if(r.status_code==200):
+    #print(r.text)#r.contents are b-encoded
+    FPC(x,r.text)
+    return True;
+  return False;
 
 def ftpget(fn, cd=0):
-    if(not useFTP):
-        p('ftp disabled')
-        return;
     global sftp, cnopts
+    if(type(fn) == str):  # solo
+        fn = [fn]
+    if (not useFTP) | (sftp['h']=='-'):
+        oks=[]
+        for i in fn:
+            if(rg(i)):
+                oks+=[i]
+        p('get:' + ','.join(oks))
+        return oks;
+        p('ftp disabled')
     if(cd == 0):
         cd = sftp['cd']
     with pysftp.Connection(sftp['h'], username=sftp['u'], password=sftp['p'], cnopts=cnopts) as connection:
         with connection.cd(cd):
-            if(type(fn) == str):  # solo
-                fn = [fn]
             for i in fn:
                 connection.get(i)
             p('get:' + ','.join(fn))
 
 
 def ftpputzip(fn, cd=0):
-    if(not useFTP):
+    global sftp
+    if (not useFTP) | (sftp['h']=='-'):
         p('ftp disabled')
         return;
     if(type(fn) == str):  # solo
@@ -211,16 +234,12 @@ def ftpputzip(fn, cd=0):
 
 
 def ftpexists(fn, cd=0):
-    if(not useFTP):
-        p('ftp disabled')
-        return;
     if(cd == 0):
         cd = sftp['cd']
     liste = ftpls(cd)
     if(fn in liste):
         return True
     return False
-
 
 def getFile(fns, sep='\t'):
     notFound = []
@@ -277,28 +296,28 @@ def getFile(fns, sep='\t'):
 
 
 def ftpls(cd=0):
-    if(not useFTP):
-        p('ftp disabled')
-        return;
     global sftp, cnopts
+    if (not useFTP) | (sftp['h']=='-'):
+        rg('list.php')
+        x=fgc('list.php')
+        return x.split(',')
+    
     if(cd == 0):
         cd = sftp['cd']
     with pysftp.Connection(sftp['h'], username=sftp['u'], password=sftp['p'], cnopts=cnopts) as connection:
         with connection.cd(cd):
             return connection.listdir()
 
-
 def FPC(fn, data):
     x = str(data).strip("\n\r ")
-    p(x,end='.')
-    myfile = open(fn, 'w', newline='\n')
+    #p(x,end='.')
+    myfile = open(fn,'w',newline='\n')
     myfile.write(x)
     myfile.close()
 
-
 def fgc(fn, join=True):
     lines = []
-    with open(fn) as f:
+    with open(fn,'r') as f:
         lines += f.read().splitlines()
     if join:
         return "\n".join(lines)
@@ -376,6 +395,10 @@ def extractTags(x,join=1):
 
 def ftpput(fn, cd=0, aszip=0):
     global sftp, cnopts
+    if (not useFTP) | (sftp['h']=='-'):
+        p('ftp offline');
+        return;
+    
     if(type(fn) == str):  # solo
         fn = [fn]
     if(cd == 0):

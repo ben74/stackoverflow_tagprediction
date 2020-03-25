@@ -1,19 +1,28 @@
-#prod:cd stackoverflow_tagprediction;git pull;python3 cassandra.py 2>&1 | tee cassandra.log
+#prod:git clone https://github.com/ben74/stackoverflow_tagprediction;cd stackoverflow_tagprediction;git pull;python3 cassandra.py 2>&1 | tee cassandra.log
 #todo : inclure l'import des modèles ci dessous
 #todo : ajouter fonctions de cleaning sur le texte en input
 #modèle final : aller sur stack overflow au hazard ou via sql explorer et tester
 #pip install flask sklearn;
 #rm bestQuickModel.tgz;rm bestQuickModel.pickle;cd ~/home/python;py3 cassandra.py;#has 344 tags, not 358
 #gad *.tgz;gu;git push -f
-#}{Alpow
+#}{Required modules installation
 import os
-import sys
-if('pysftp' not in list(sys.modules)):
-    os.system('pip3 install numpy joblib Ipython sklearn seaborn requests flask webptools pysftp')
+modules='wget joblib Ipython sklearn seaborn flask webptools pysftp numpy requests'.split(' ')
+fn='versions.txt'
+os.system('pip3 freeze > '+fn)
+installed=''
+with open(fn) as f:
+    installed += f.read()
+    
+for module in modules:
+    if(module+'==' not in  installed):
+        os.system('pip3 install '+module)
+        
 import numpy as np
+#}{Alpow
 import alpow;from alpow import *
-##
-np.random.seed(1983)
+sftp['cd']='stack5'
+alpow.webRepo='https://1.x24.fr/a/jupyter/'
 #dont store credentials within the repository
 if os.path.exists('credentials.py'):
     import credentials;
@@ -24,14 +33,7 @@ else:
     alpow.useFTP=False;
     sendimages2ftp=0
     
-'''
-import sklearn.svm,sklearn.preprocessing,pickle,joblib
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.linear_model import LogisticRegression #is not the same namespace
-#joblib and pickle dump model No module named 'sklearn.linear_model._logistic'
-from sklearn.decomposition import LatentDirichletAllocation
-from sklearn.preprocessing import MultiLabelBinarizer
-'''
+np.random.seed(1983)
 
 def load(fn='allVars',onlyIfNotSet=1):
   fns=fn.split(',')
