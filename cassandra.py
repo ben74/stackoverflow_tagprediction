@@ -286,6 +286,6 @@ def predict():
     return render_template('main.html', tags1 = tags1, tags2 = tags2, ldatags = ldatags,title=title, body=body, postdata = 1)
 
 if __name__ == '__main__':
-	app.run(debug=True)       
+	app.run(host='0.0.0.0',debug=True)       
 
 
