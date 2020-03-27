@@ -28,10 +28,18 @@ p('Mainframe alpow included')  # mainframe
 # import importlib;importlib.reload(alpow);#reload
 #os.system('rm -f alpow.py;wget https://alpow.fr/alpow.py')
 # requirements
-if('pysftp' not in sys.modules):
-    os.system('pip install pysftp')
-    os.system('pip install webptools')
 
+modules='wget joblib ipython sklearn seaborn Flask webptools pysftp numpy requests'.split(' ')
+fn='versions.txt'
+os.system('pip freeze > '+fn)
+installed=''
+with open(fn) as f:
+    installed += f.read()
+    
+for module in modules:
+    if(module+'==' not in  installed):
+        print('Trying to install :',module)
+        os.system('pip install '+module)
 
 # }conf{
 np.random.seed(seed=1983)
@@ -294,18 +302,20 @@ def getFile(fns, sep='\t'):
             p('Getfile:NotFound:' + ','.join(notFound))
     return len(found)
 
-
+setG('ftplist',[])
 def ftpls(cd=0):
     global sftp, cnopts
     if (not useFTP) | (sftp['h']=='-'):
         rg('list.php')
         x=fgc('list.php')
+        setG('ftplist', x.split(','))
         return x.split(',')
     
     if(cd == 0):
         cd = sftp['cd']
     with pysftp.Connection(sftp['h'], username=sftp['u'], password=sftp['p'], cnopts=cnopts) as connection:
         with connection.cd(cd):
+            setG('ftplist',connection.listdir())
             return connection.listdir()
 
 def FPC(fn, data):
@@ -352,17 +362,32 @@ def uniqueValuesPerColumn(sc, df2):
         by='count',
         ascending=False)
 
+def lemitizeWords(text):
+    words=token.tokenize(text)
+    listLemma=[]
+    for w in words:
+        x=lemma.lemmatize(w, pos="v")
+        listLemma.append(x)
+    return ' '.join(map(str, listLemma))
+
+def stopWordsRemove(text):
+    words=token.tokenize(text)
+    filtered = [w for w in words if not w in stop_words]
+    return ' '.join(map(str, filtered))        
+        
 def extractionMots(x):
-  notags=re.sub('<[^<]+?>', '', x)#suppression tags ouverture et fermeture ( conservant leur contenus interne : code, texte mis en forme, etc .. )
-  noHTMLentities=re.sub('&[^;]{1,9};', '', notags)#&amp; &gt &lt
-  stripped=re.sub(r"[^a-z0-9',.]+",' ', noHTMLentities)#autres que caractères de base
-  lemitized=lemitizeWords(stripped)
-  noStopWords=stopWordsRemove(lemitized)#i => retire du sens à la phrase conserve plupart mots clefs
-  bouillie=re.sub(r"[',. ]+",' ',noStopWords).strip()#bouillie de mots
-  #trimSingleLetters : I
-  return trimAloneNumbers(bouillie)
+    import re
+    notags=re.sub('<[^<]+?>', '', x)#suppression tags ouverture et fermeture ( conservant leur contenus interne : code, texte mis en forme, etc .. )
+    noHTMLentities=re.sub('&[^;]{1,9};', '', notags)#cleanup &amp; &gt &lt
+    stripped=re.sub(r"[^a-z0-9',.]+",' ', noHTMLentities)#autres que caractères de base
+    lemitized=lemitizeWords(stripped)
+    noStopWords=stopWordsRemove(lemitized)#i => retire du sens à la phrase conserve plupart mots clefs
+    bouillie=re.sub(r"[',. ]+",' ',noStopWords).strip()#bouillie de mots
+    #trimSingleLetters : I
+    return trimAloneNumbers(bouillie)
 
 def stripSimpleTags(x):
+  import re
   x=re.sub('<','',x)#retrait de gauche
   x=re.sub('>',';',x)#remplacement par un séparateur plus commun
   x=re.sub(' +',' ',x)#multiples espaces potentiel par un unique
@@ -1466,5 +1491,4 @@ def percentageByCat(x,nb=10):
     
 
 # inject javascript function text2speech
-html(
-    "<script>lang=document.body.parentNode.getAttribute('lang');lang='en';function say(x,vid,p,rate){var defaultVoice=0,r=rate||1;if(lang.indexOf('fr')>-1){defaultVoice=2;r=1.8;}/*hortense*/vid=vid||defaultVoice;p=p||1;x=x||0;if(!x){x=alpow.getText();}if(!x)return;console.log(x);var y=new SpeechSynthesisUtterance(),voices=window.speechSynthesis.getVoices();y.voice=voices[vid];y.voiceURI='native';y.volume=1;y.rate=r;y.pitch=p;y.text=x;y.lang='en-US';speechSynthesis.speak(y);return x;}</script>")
+#html("<script>lang=document.body.parentNode.getAttribute('lang');lang='en';function say(x,vid,p,rate){var defaultVoice=0,r=rate||1;if(lang.indexOf('fr')>-1){defaultVoice=2;r=1.8;}/*hortense*/vid=vid||defaultVoice;p=p||1;x=x||0;if(!x){x=alpow.getText();}if(!x)return;console.log(x);var y=new SpeechSynthesisUtterance(),voices=window.speechSynthesis.getVoices();y.voice=voices[vid];y.voiceURI='native';y.volume=1;y.rate=r;y.pitch=p;y.text=x;y.lang='en-US';speechSynthesis.speak(y);return x;}</script>")

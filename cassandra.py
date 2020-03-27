@@ -1,4 +1,5 @@
 #prod:git clone https://github.com/ben74/stackoverflow_tagprediction;cd stackoverflow_tagprediction;git pull;python3 cassandra.py 2>&1 | tee cassandra.log
+#dev: python3 ~/home/_cassandra/cassandra.py
 #todo : inclure l'import des modèles ci dessous
 #todo : ajouter fonctions de cleaning sur le texte en input
 #modèle final : aller sur stack overflow au hazard ou via sql explorer et tester
@@ -6,19 +7,6 @@
 #rm bestQuickModel.tgz;rm bestQuickModel.pickle;cd ~/home/python;py3 cassandra.py;#has 344 tags, not 358
 #gad *.tgz;gu;git push -f
 #}{Required modules installation
-import os
-modules='wget joblib Ipython sklearn seaborn flask webptools pysftp numpy requests'.split(' ')
-fn='versions.txt'
-os.system('pip3 freeze > '+fn)
-installed=''
-with open(fn) as f:
-    installed += f.read()
-    
-for module in modules:
-    if(module+'==' not in  installed):
-        os.system('pip3 install '+module)
-        
-import numpy as np
 #}{Alpow
 import alpow;from alpow import *
 sftp['cd']='stack5'
@@ -32,8 +20,16 @@ if os.path.exists('credentials.py'):
 else:
     alpow.useFTP=False;
     sendimages2ftp=0
-    
+#}{
+import numpy as np
+import nltk
+from nltk.tokenize import ToktokTokenizer
 np.random.seed(1983)
+
+nltk.download('stopwords')
+alpow.stop_words=nltk.corpus.stopwords.words('english')
+alpow.lemma=nltk.WordNetLemmatizer()
+alpow.token=ToktokTokenizer()
 
 def load(fn='allVars',onlyIfNotSet=1):
   fns=fn.split(',')
@@ -104,7 +100,8 @@ class rewriteClass(pickle.Unpickler):
           
 #}{LDA
 def ldaResults(x,best_lda_model,vectorizer_train,df_topics_tags_norm,nb=5,titleWeight=4):
-  vectorized=vectorizer_train.transform((x['title']+' ')*titleWeight+x['body'])
+  input=(x['title']+' ')*titleWeight + x['body']#is a serie  
+  vectorized=vectorizer_train.transform(input)
   topic_distrib_pred = best_lda_model.transform(vectorized)
   probabilityPerTag = (df_topics_tags_norm * topic_distrib_pred).sum(axis=1)
   #echo(x['title'].values[0]," -- ",x['body'].values[0],"\n",'tags : ',x['tags'].values[0])
@@ -131,12 +128,13 @@ def my_bag_of_words(text, words_to_index, dict_size):
   keys= [words_to_index[i] for i in text.split(" ") if i in words_to_index.keys()]
   result_vector[keys]=1
   return result_vector
-  
-def EvaluateBagModel(mdl,x,WORDS_TO_INDEX,titleWeight=4,pca2=False):
+ 
+def EvaluateBagModel(mdl,x,WORDS_TO_INDEX,titleWeight=4,pca2=False,nb=1):
   from itertools import chain 
-  inputx=(x['title']+' '*titleWeight)+x['body'][:nb]
+  inputx=(x['title'][:nb]+' ')*titleWeight+x['body'][:nb]
   MBW=[]  
-  for text in inputx:
+  for text in inputx:#single
+    #text=' '.join(inputCleaner(text));
     MBW+=[my_bag_of_words(text, WORDS_TO_INDEX, dictsize)]
 #cibler le nombre de dimensions finales de la PCA !!
 #avec les mêmes paramètres devant retourner le même nombre de dimensions ? => retourne matrice vide => bof bof
@@ -213,13 +211,17 @@ def proba(_mdl,x,seuil=0,minus=1,top=2):
 
   return np.array(ypredictions)    
 
+def inputCleaner(x):
+    x=x.lower()#based on string then
+    return ''.join(extractionMots(x))  
+  
 dtitle='python confused question'
 dbody='''
 - Some text about flask and class
 - this is the text within the html body contents like mysql query request having im going to write more mysql related database stuff
 - would adding some mysql database related queries and words would rise the tag probability for it ? => True
 '''
-newdf=pd.DataFrame({'title':[dtitle],'body':[dbody],'tags':''})
+newdf=pd.DataFrame({'title':[dtitle],'body':[dbody],'tags':''})   
 
 #relatifs au modèle :: ValueError: Expected indicator for 40 classes, but got 358
 nb=1
@@ -282,8 +284,8 @@ def home():
 def predict():
     if (request.method == 'POST'):        
         title = request.form['title']        
-        body = request.form['body']                
-        newdf = pd.DataFrame({'title':[title],'body':[body],'tags':''})
+        body = request.form['body']                        
+        newdf = pd.DataFrame({'title':[inputCleaner(title)],'body':[inputCleaner(body)],'tags':''})
         tags1,tags2=EvaluateBagModel(globals()[mdlname],newdf,g('bagOfWords_'+k3))
         tags1=' , '.join(tags1)
         tags2=' , '.join(tags2)
