@@ -1,5 +1,5 @@
 # -*-coding:utf-8 -*
-#---
+# ---
 import sklearn.preprocessing
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -22,24 +22,25 @@ from webptools import webplib
 import pysftp
 import hashlib
 
-echo=print
-p=print
+echo = print
+p = print
 p('Mainframe alpow included')  # mainframe
 # import importlib;importlib.reload(alpow);#reload
 #os.system('rm -f alpow.py;wget https://alpow.fr/alpow.py')
 # requirements
 
-modules='wget joblib ipython sklearn seaborn Flask webptools pysftp numpy requests'.split(' ')
-fn='versions.txt'
-os.system('pip freeze > '+fn)
-installed=''
+modules = 'wget joblib ipython sklearn seaborn Flask webptools pysftp numpy requests'.split(
+    ' ')
+fn = 'versions.txt'
+os.system('pip freeze > ' + fn)
+installed = ''
 with open(fn) as f:
     installed += f.read()
-    
+
 for module in modules:
-    if(module+'==' not in  installed):
-        print('Trying to install :',module)
-        os.system('pip install '+module)
+    if(module + '==' not in installed):
+        print('Trying to install :', module)
+        os.system('pip install ' + module)
 
 # }conf{
 np.random.seed(seed=1983)
@@ -59,19 +60,22 @@ lab_enc = sklearn.preprocessing.LabelEncoder()
 heightPerGraph = widthPerGraph = 6
 demo = 1
 verbose = 0
-#empty parameters to be overriden
-def setG(k,v):
+# empty parameters to be overriden
+
+
+def setG(k, v):
     if(k in globals().keys()):
-        del(globals()[k]);
-    globals()[k]=v
-    
-setG('sftp',{'cd': '', 'web': '-', 'h': '-', 'u': '-', 'p': '-'})
+        del(globals()[k])
+    globals()[k] = v
+
+
+setG('sftp', {'cd': '', 'web': '-', 'h': '-', 'u': '-', 'p': '-'})
 
 considerEmpty = [np.inf, -np.inf, np.nan, 0, 'na', '']
 
-sendimages2ftp=1
-removepng=1
-useFTP=True
+sendimages2ftp = 1
+removepng = 1
+useFTP = True
 # }shortcuts{
 
 
@@ -80,6 +84,7 @@ useFTP=True
 
 def g(x):
     return globals()[x]
+
 
 def md5(x):
     res = hashlib.md5(str(x).encode())
@@ -93,18 +98,19 @@ def show():
         return
     plt.close()
 
-    
-def findWithinArrayValues(tags,q):
-  res=[]
-  for k in range(len(tags)):
-  #for k,v in tags.iterows():
-    v=tags[k]
-    try:
-      if(v.index(q)):
-        res+=[k]
-    except ValueError:
-      pass
-  return res
+
+def findWithinArrayValues(tags, q):
+    res = []
+    for k in range(len(tags)):
+        # for k,v in tags.iterows():
+        v = tags[k]
+        try:
+            if(v.index(q)):
+                res += [k]
+        except ValueError:
+            pass
+    return res
+
 
 def message(x):
     now = datetime.datetime.now()
@@ -115,6 +121,7 @@ def message(x):
 
 def filename(x):
     return re.sub(r"[^a-z0-9\-_,\.:]+", '-', x.lower())
+
 
 def webp(x):
     x2 = x.replace('.png', '') + '.webp'
@@ -170,7 +177,7 @@ def cleanData(inputDf, fillStrings='na', fillInt=0, considerEmpty=[
     p('Total Cols in dataset : ' + str(cols))
     p('Total Cells : ' + str(dfs))
     p('Cells containing null,inf,NaN,0 or empty values : ' + str(nv) +
-          ' ( ' + str(round(nv * 100 / dfs, 2)) + '% )')  # Diagnose null columns
+      ' ( ' + str(round(nv * 100 / dfs, 2)) + '% )')  # Diagnose null columns
     p('_' * 80)
     # Fournissent une bonne indication des colonnes à dropper pour le modèke
     for i in nanInfZeroNaEmpty.index:
@@ -196,26 +203,28 @@ def cleanData(inputDf, fillStrings='na', fillInt=0, considerEmpty=[
     p('_' * 140)
     return df
 
+
 def rg(x):
-  import requests
-  r=requests.get(webRepo+sftp['cd']+'/'+x)
-  if(r.status_code==200):
-    #print(r.text)#r.contents are b-encoded
-    FPC(x,r.text)
-    return True;
-  return False;
+    import requests
+    r = requests.get(webRepo + sftp['cd'] + '/' + x)
+    if(r.status_code == 200):
+        # print(r.text)#r.contents are b-encoded
+        FPC(x, r.text)
+        return True
+    return False
+
 
 def ftpget(fn, cd=0):
     global sftp, cnopts
     if(type(fn) == str):  # solo
         fn = [fn]
-    if (not useFTP) | (sftp['h']=='-'):
-        oks=[]
+    if (not useFTP) | (sftp['h'] == '-'):
+        oks = []
         for i in fn:
             if(rg(i)):
-                oks+=[i]
+                oks += [i]
         p('get:' + ','.join(oks))
-        return oks;
+        return oks
         p('ftp disabled')
     if(cd == 0):
         cd = sftp['cd']
@@ -228,9 +237,9 @@ def ftpget(fn, cd=0):
 
 def ftpputzip(fn, cd=0):
     global sftp
-    if (not useFTP) | (sftp['h']=='-'):
+    if (not useFTP) | (sftp['h'] == '-'):
         p('ftp disabled')
-        return;
+        return
     if(type(fn) == str):  # solo
         fn = [fn]
     zipped = []
@@ -248,6 +257,7 @@ def ftpexists(fn, cd=0):
     if(fn in liste):
         return True
     return False
+
 
 def getFile(fns, sep='\t'):
     notFound = []
@@ -302,49 +312,60 @@ def getFile(fns, sep='\t'):
             p('Getfile:NotFound:' + ','.join(notFound))
     return len(found)
 
-setG('ftplist',[])
+
+setG('ftplist', [])
+
+
 def ftpls(cd=0):
     global sftp, cnopts
-    if (not useFTP) | (sftp['h']=='-'):
+    if (not useFTP) | (sftp['h'] == '-'):
         rg('list.php')
-        x=fgc('list.php')
+        x = fgc('list.php')
         setG('ftplist', x.split(','))
         return x.split(',')
-    
+
     if(cd == 0):
         cd = sftp['cd']
     with pysftp.Connection(sftp['h'], username=sftp['u'], password=sftp['p'], cnopts=cnopts) as connection:
         with connection.cd(cd):
-            setG('ftplist',connection.listdir())
+            setG('ftplist', connection.listdir())
             return connection.listdir()
+
 
 def FPC(fn, data):
     x = str(data).strip("\n\r ")
-    #p(x,end='.')
-    myfile = open(fn,'w',newline='\n')
+    # p(x,end='.')
+    myfile = open(fn, 'w', newline='\n')
     myfile.write(x)
     myfile.close()
 
+
 def fgc(fn, join=True):
     lines = []
-    with open(fn,'r') as f:
+    with open(fn, 'r') as f:
         lines += f.read().splitlines()
     if join:
         return "\n".join(lines)
     return lines
 
-def nf(a=0,b=0,c=0,d=0,e=0,f=0,g=0,h=0,i=0,j=0,end=0):
-    return;
-    
-#disable it : p=nf
+
+def nf(a=0, b=0, c=0, d=0, e=0, f=0, g=0, h=0, i=0, j=0, end=0):
+    return
+
+# disable it : p=nf
+
+
 def disablePrint():
     global p
-    p=nf
-    echo=nf
+    p = nf
+    echo = nf
+
+
 def enablePrint():
     global p
-    p=print
-    echo=print
+    p = print
+    echo = print
+
 
 def fgcj(fn):
     with open(fn + '.json') as json_file:
@@ -362,68 +383,82 @@ def uniqueValuesPerColumn(sc, df2):
         by='count',
         ascending=False)
 
+
 def lemitizeWords(text):
-    words=token.tokenize(text)
-    listLemma=[]
+    words = token.tokenize(text)
+    listLemma = []
     for w in words:
-        x=lemma.lemmatize(w, pos="v")
+        x = lemma.lemmatize(w, pos="v")
         listLemma.append(x)
     return ' '.join(map(str, listLemma))
 
+
 def stopWordsRemove(text):
-    words=token.tokenize(text)
-    filtered = [w for w in words if not w in stop_words]
-    return ' '.join(map(str, filtered))        
-        
+    words = token.tokenize(text)
+    filtered = [w for w in words if w not in stop_words]
+    return ' '.join(map(str, filtered))
+
+
 def extractionMots(x):
     import re
-    notags=re.sub('<[^<]+?>', '', x)#suppression tags ouverture et fermeture ( conservant leur contenus interne : code, texte mis en forme, etc .. )
-    noHTMLentities=re.sub('&[^;]{1,9};', '', notags)#cleanup &amp; &gt &lt
-    stripped=re.sub(r"[^a-z0-9',.]+",' ', noHTMLentities)#autres que caractères de base
-    lemitized=lemitizeWords(stripped)
-    noStopWords=stopWordsRemove(lemitized)#i => retire du sens à la phrase conserve plupart mots clefs
-    bouillie=re.sub(r"[',. ]+",' ',noStopWords).strip()#bouillie de mots
+    # suppression tags ouverture et fermeture ( conservant leur contenus
+    # interne : code, texte mis en forme, etc .. )
+    notags = re.sub('<[^<]+?>', '', x)
+    noHTMLentities = re.sub('&[^;]{1,9};', '', notags)  # cleanup &amp; &gt &lt
+    # autres que caractères de base
+    stripped = re.sub(r"[^a-z0-9',.]+", ' ', noHTMLentities)
+    lemitized = lemitizeWords(stripped)
+    # i => retire du sens à la phrase conserve plupart mots clefs
+    noStopWords = stopWordsRemove(lemitized)
+    bouillie = re.sub(r"[',. ]+", ' ', noStopWords).strip()  # bouillie de mots
     #trimSingleLetters : I
     return trimAloneNumbers(bouillie)
 
+
 def stripSimpleTags(x):
-  import re
-  x=re.sub('<','',x)#retrait de gauche
-  x=re.sub('>',';',x)#remplacement par un séparateur plus commun
-  x=re.sub(' +',' ',x)#multiples espaces potentiel par un unique
-  return x.lower().strip('; ')#trim
-  #return re.sub(' +',' ', re.sub('<|>',' ', x))
-  #x='6 python pandas 34 scikit-learn a7s pmml 7'
+    import re
+    x = re.sub('<', '', x)  # retrait de gauche
+    x = re.sub('>', ';', x)  # remplacement par un séparateur plus commun
+    x = re.sub(' +', ' ', x)  # multiples espaces potentiel par un unique
+    return x.lower().strip('; ')  # trim
+    # return re.sub(' +',' ', re.sub('<|>',' ', x))
+    #x='6 python pandas 34 scikit-learn a7s pmml 7'
+
 
 def trimAloneNumbers(x):
-  return re.sub('^[0-9]+\s|\s[0-9]+\s|\s[0-9]+$', '',x).strip()  
+    return re.sub(r'^[0-9]+\s|\s[0-9]+\s|\s[0-9]+$', '', x).strip()
+
 
 def trimSingleLetters(x):
-  return re.sub('^[a-z]{1}\s|\s[a-z]{1}\s|\s[a-z]{1}$', '',x).strip()    
+    return re.sub(r'^[a-z]{1}\s|\s[a-z]{1}\s|\s[a-z]{1}$', '', x).strip()
+
 
 def arrayCount(x):
-  return len(x)
-  
+    return len(x)
+
+
 def uniqueValues(x):
-  x = np.array(x) 
-  return list(np.unique(x)) 
+    x = np.array(x)
+    return list(np.unique(x))
+
 
 def extractTagsn(x):
-  return re.findall(r'(?<=\<)[^\<\>]+(?=\>)', x)
-  
-def extractTags(x,join=1):
-  res=re.findall(r'(?<=\<)[^\<\>]+(?=\>)', x)
-  if join:
-    return ' '.join(res)
-  return res
-  
+    return re.findall(r'(?<=\<)[^\<\>]+(?=\>)', x)
+
+
+def extractTags(x, join=1):
+    res = re.findall(r'(?<=\<)[^\<\>]+(?=\>)', x)
+    if join:
+        return ' '.join(res)
+    return res
+
 
 def ftpput(fn, cd=0, aszip=0):
     global sftp, cnopts
-    if (not useFTP) | (sftp['h']=='-'):
-        p('ftp offline');
-        return;
-    
+    if (not useFTP) | (sftp['h'] == '-'):
+        p('ftp offline')
+        return
+
     if(type(fn) == str):  # solo
         fn = [fn]
     if(cd == 0):
@@ -431,12 +466,12 @@ def ftpput(fn, cd=0, aszip=0):
     with pysftp.Connection(sftp['h'], username=sftp['u'], password=sftp['p'], cnopts=cnopts) as connection:
         with connection.cd(cd):
             for i in fn:
-                p(i.split('.')[-1], ' ',i, ' ' ,os.path.exists(i))
+                p(i.split('.')[-1], ' ', i, ' ', os.path.exists(i))
                 if(not os.path.exists(i)):
-                  p('!!!!',i,' not exists')
-                  assert(False)
-                  continue
-                if((i.split('.')[-1] not in ['zip', 'jpg', 'png', 'webp', 'tgz', 'mp4', 'mp3', 'mkv','pik']) & (os.path.getsize(i) > 5000000 | aszip)):
+                    p('!!!!', i, ' not exists')
+                    assert(False)
+                    continue
+                if((i.split('.')[-1] not in ['zip', 'jpg', 'png', 'webp', 'tgz', 'mp4', 'mp3', 'mkv', 'pik']) & (os.path.getsize(i) > 5000000 | aszip)):
                     os.system('rm -f ' + i + '.zip')
                     os.system('zip ' + i + '.zip ' + i)
                     i = i + '.zip'
@@ -446,25 +481,35 @@ def ftpput(fn, cd=0, aszip=0):
                     p('put : ' + sftp['web'] + i + '?a=' + now)  # !
 
 
-def pltinit(df, i, j, title=False,width=6,height=6):    
-    fig, ax = plt.subplots(figsize=(height,width))
+def pltinit(df, i, j, title=False, width=6, height=6):
+    fig, ax = plt.subplots(figsize=(height, width))
     fig.patch.set_facecolor('white')
     x = df[i]
     y = df[j]
-    if(title==False):
-        title=i + ' vs ' + j
+    if(title == False):
+        title = i + ' vs ' + j
     plt.title(title)
     plt.xlabel(i)
     plt.ylabel(j)
     return [x, y, filename(i + '.' + j), fig, ax]
 
-def plot(df, i='x', j='y', rotate=False, fn=False, title=False,width=6,height=6):
-    if type(df)==dict:    
-        df=pd.DataFrame.from_dict({'x':list(df.keys()),'y':list(df.values())})
 
-    x, y, fn2, fig, ax = pltinit(df, i, j, title,height,width)
-    if(fn==False):
-        fn=fn2
+def plot(
+        df,
+        i='x',
+        j='y',
+        rotate=False,
+        fn=False,
+        title=False,
+        width=6,
+        height=6):
+    if type(df) == dict:
+        df = pd.DataFrame.from_dict(
+            {'x': list(df.keys()), 'y': list(df.values())})
+
+    x, y, fn2, fig, ax = pltinit(df, i, j, title, height, width)
+    if(fn == False):
+        fn = fn2
     # bestCorrelationsKeys.keys():
     plt.plot(x, y)
     if rotate:
@@ -475,10 +520,20 @@ def plot(df, i='x', j='y', rotate=False, fn=False, title=False,width=6,height=6)
     show()
 
 
-def scatter1(df=False, i=False, j=False, ts=0,x=False,y=False,color=False,fn='',cmap='brg',o=1):
-    if((isinstance(x,np.ndarray)) & (isinstance(y,np.ndarray))):
-        pass;
-    else: 
+def scatter1(
+        df=False,
+        i=False,
+        j=False,
+        ts=0,
+        x=False,
+        y=False,
+        color=False,
+        fn='',
+        cmap='brg',
+        o=1):
+    if((isinstance(x, np.ndarray)) & (isinstance(y, np.ndarray))):
+        pass
+    else:
         x, y, fn, fig, ax = pltinit(df, i, j)
     if ts:
         plt.gca().set_yticklabels(
@@ -489,13 +544,20 @@ def scatter1(df=False, i=False, j=False, ts=0,x=False,y=False,color=False,fn='',
             linespacing=ts)
         # ax.tick_params(axis='y',which='major',pad=ts)
         #ax.set_yticklabels(labels=y,rotation = (45), fontsize = 10, va='bottom', ha='left')
-    if(isinstance(color,pd.Series)):
+    if(isinstance(color, pd.Series)):
         #plt.scatter(x, y,c=color,cmap=cmap,alpha=o)
-        sns.scatterplot(x, y, alpha=o, hue=color, palette=sns.color_palette(cmap,unik(color).shape[0]))
+        sns.scatterplot(
+            x,
+            y,
+            alpha=o,
+            hue=color,
+            palette=sns.color_palette(
+                cmap,
+                unik(color).shape[0]))
     else:
         plt.scatter(x, y)
     plt.title(fn)
-    fn='scatter' + fn + '.png';
+    fn = 'scatter' + fn + '.png'
     plt.savefig(fn, bbox_inches='tight')
     webp(fn)
     show()
@@ -775,17 +837,19 @@ def FPCP(fn, data):
     pickle.dump(data, f, protocol=-1)
 # d=pickle.dumps(data);f.write(d);f.close();
 # can't pickle _thread.RLock objects
-    
-#ModuleNotFoundError: No module named 'sklearn.linear_model._logistic
+
+# ModuleNotFoundError: No module named 'sklearn.linear_model._logistic
+
+
 class rewriteClass(pickle.Unpickler):
     def find_class(self, module, name):
         renamed_module = module
-        a=module.split('.')        
-        if((a[-1][0]=='_') & (a[-1] not in ['_pickle'])):
-            p(a[-1],a[-1][0])
+        a = module.split('.')
+        if((a[-1][0] == '_') & (a[-1] not in ['_pickle'])):
+            p(a[-1], a[-1][0])
             del(a[-1])
-            renamed_module='.'.join(a)
-        
+            renamed_module = '.'.join(a)
+
         if module == "sklearn.linear_model._logistic":
             renamed_module = "sklearn.linear_model"
         return super(rewriteClass, self).find_class(renamed_module, name)
@@ -806,18 +870,21 @@ def fgcp(fn):
         return ret
     return 0
 
+
 def loadIfNotSet(x):
     if x not in globals().keys():
         load(x)
-    
+
+
 def mail(x):
     import requests
-    url = 'https://1.x24.fr/a/bus.php'    
+    url = 'https://1.x24.fr/a/bus.php'
     r = requests.post(url, data={'mail': x})
-    
+
+
 def message(x):
     import requests
-    url = 'https://1.x24.fr/a/bus.php'    
+    url = 'https://1.x24.fr/a/bus.php'
     r = requests.post(url, data={0: x})
     r = requests.post(url, data={'mail': x})
 
@@ -972,8 +1039,15 @@ def saveAsOne(
     os.system('rm -f ' + fn + '.pickle ' + fn + '.pickle.zip')
     FPCP(fn, _vars)
     os.system('stat ' + fn + '.pickle')
-    p('fs : ' + str(round(os.stat(fn + '.pickle').st_size / 1024 / 1024)),end='.') # + ' //--- saved in:' + str(round(time() - a)) + 's'
-    o = subprocess.check_output('zip ' +fn +'.pickle.zip ' +fn +'.pickle',shell=True)
+    p('fs : ' + str(round(os.stat(fn + '.pickle').st_size / 1024 / 1024)),
+      end='.')  # + ' //--- saved in:' + str(round(time() - a)) + 's'
+    o = subprocess.check_output(
+        'zip ' +
+        fn +
+        '.pickle.zip ' +
+        fn +
+        '.pickle',
+        shell=True)
     p(o)
     ftp = [fn + '.pickle.zip']
 
@@ -985,27 +1059,34 @@ def saveAsOne(
 
     ftpput(ftp)
 
-def reduceList(n, iterable):
-  from itertools import islice
-  "Return first n items of the iterable as a list"
-  return list(islice(iterable, n))    
 
-take=reduceList
+def reduceList(n, iterable):
+    from itertools import islice
+    "Return first n items of the iterable as a list"
+    return list(islice(iterable, n))
+
+
+take = reduceList
 
 # globals().update(resume('allVars'))
+
+
 def ramUsage():
     process = psutil.Process(os.getpid())
-    return round(process.memory_info().rss/1024/1024,2)  # in M
-    
-#topramusageperkey
+    return round(process.memory_info().rss / 1024 / 1024, 2)  # in M
+
+# topramusageperkey
+
+
 def ramUsagePerKey():
-  gk=list(globals().keys())
-  vpk={}
-  for i in gk:
-    if callable(globals()[i]):
-      continue
-    vpk[i]=sys.getsizeof(globals()[i])
-  display(arsort(vpk))
+    gk = list(globals().keys())
+    vpk = {}
+    for i in gk:
+        if callable(globals()[i]):
+            continue
+        vpk[i] = sys.getsizeof(globals()[i])
+    display(arsort(vpk))
+
 
 def plot_feature_importances(feature_importances, title, feature_names, fn=0):
     # Normalize the importance values
@@ -1095,9 +1176,9 @@ def unikValuesPerDataframe(train):
         unikStringValuesPerColumn[i] = len(train[i].unique())
         p('_' * 120)
         p(' 🗲 Different values in ' + i + ' : ' +
-              str(unikStringValuesPerColumn[i]) + suffix)
+          str(unikStringValuesPerColumn[i]) + suffix)
         p(train[train[i] != 0].groupby(i)[
-              i].count().sort_values(ascending=False).head(5))
+            i].count().sort_values(ascending=False).head(5))
 
 # _df[:1][columns]
 # radar stuff
@@ -1182,8 +1263,10 @@ def unik(x, aslist=False):
     if aslist:
         return list(x.value_counts().keys())
     return x.value_counts()
-    
-unique=unik
+
+
+unique = unik
+
 
 def _save(
         _globals,
@@ -1194,9 +1277,9 @@ def _save(
         ftp=True,
         cleanup=False,
         zip=True,
-        authTypes=[str,dict,list,int,np.ndarray,pd.DataFrame,pd.Series]
-        ):
-    
+        authTypes=[str, dict, list, int, np.ndarray, pd.DataFrame, pd.Series]
+):
+
     exclusions += 'Out,In,models,allVars,sftp'.split(',')
     size = {}
     dumpedsize = {}
@@ -1212,7 +1295,7 @@ def _save(
             if callable(_globals[i]):
                 continue
             if(authTypes):
-                if type(_globals[i]) in authTypes: 
+                if type(_globals[i]) in authTypes:
                     _vars += [i]
             else:
                 _vars += [i]
@@ -1226,19 +1309,19 @@ def _save(
         size[i] = sys.getsizeof(_globals[i])
         dumpedsize[i] = round(os.stat(i + '.pickle').st_size)  # /1024/1024
     # p(arsort(size))
-    #return dumpedsize
+    # return dumpedsize
 
     if(zip):
         os.system('rm -f ' + fn + '.tgz')
         fl = []
         for i in size.keys():
             fl += [i + '.pickle']
-        #p(fl)
+        # p(fl)
         FPC('filelist.list', '\n'.join(fl))
         #os.system('pf '+fl+'>filelist.list')
         os.system('tar czf ' + fn + '.tgz --files-from=filelist.list')
-        p('fs : ' + str(round(os.stat(fn + '.tgz').st_size / 1024 / \
-              1024)) + ' //--- saved in:' + str(round(time() - a)) + 's')
+        p('fs : ' + str(round(os.stat(fn + '.tgz').st_size / 1024 / 1024)) +
+          ' //--- saved in:' + str(round(time() - a)) + 's')
 
         if(cleanup):
             for i in size.keys():
@@ -1257,7 +1340,8 @@ def _save(
 def resume(fn='allVars'):  # restore
     a = time()
     _allVars = {}
-    p('Resuming : ',fn,',exists:',os.path.exists(fn + '.pickle'),' or tgz:',os.path.exists(fn + '.tgz'))
+    p('Resuming : ', fn, ',exists:', os.path.exists(
+        fn + '.pickle'), ' or tgz:', os.path.exists(fn + '.tgz'))
     p('files found:', getFile([fn + '.pickle', fn + '.tgz']))
     if(os.path.exists(fn + '.pickle')):
         _allVars[fn] = fgcp(fn)  # nom de variable individuelle
@@ -1272,6 +1356,7 @@ def resume(fn='allVars'):  # restore
             i2 = i.replace('.pickle', '')
             _allVars[i2] = fgcp(i2)
     return _allVars
+
 
 load = restore = resume
 
@@ -1335,120 +1420,144 @@ def pcaScatter(
         xmax=0,
         ymin=0,
         ymax=0):
-  # p(type(centers),type(centers)==np.ndarray)
-  xminFixed=0
-  if(xmin!=0):
-    xminFixed=1
-  nbDimensions=X_projected.shape[1]
-  #nbColonnes,vecteurs
-  pairs=list(itertools.combinations(range(0,nbDimensions),2))
-  #et les triples ?
-  
-  dims = {}
-  k = 0
+    # p(type(centers),type(centers)==np.ndarray)
+    xminFixed = 0
+    if(xmin != 0):
+        xminFixed = 1
+    nbDimensions = X_projected.shape[1]
+    # nbColonnes,vecteurs
+    pairs = list(itertools.combinations(range(0, nbDimensions), 2))
+    # et les triples ?
 
-  if((nbDimensions>2) & displayTriples):
-    triples=list(itertools.combinations(range(0,nbDimensions),3))
-    for triple in triples:
-      p(triple)
-      xs=pca_projected[:,triple[0]];ys=pca_projected[:,triple[1]];zs=pca_projected[:,triple[2]]
-      px.scatter_3d(pd.DataFrame.from_dict({'Dim'+str(triple[0]):xs,'Dim'+str(triple[1]):ys,'Dim'+str(triple[2]):zs,'color':clusters}),
-                    x='Dim'+str(triple[0]),y='Dim'+str(triple[1]),z='Dim'+str(triple[2]),
-                    color='color',color_continuous_scale=rgb,opacity=.3).show()
+    dims = {}
+    k = 0
 
-  if(displayPairs):
-    for pair in pairs:
-      p('dimensions',pair)
-      xs = X_projected[:, pair[0]]
-      ys = X_projected[:, pair[1]]
-      if(xminFixed==0):
-        xmax = xs.max()
-        xmin = xs.min()
-        ymax = ys.max()
-        ymin = ys.min()
+    if((nbDimensions > 2) & displayTriples):
+        triples = list(itertools.combinations(range(0, nbDimensions), 3))
+        for triple in triples:
+            p(triple)
+            xs = pca_projected[:, triple[0]]
+            ys = pca_projected[:, triple[1]]
+            zs = pca_projected[:, triple[2]]
+            px.scatter_3d(pd.DataFrame.from_dict({'Dim' + str(triple[0]): xs,
+                                                  'Dim' + str(triple[1]): ys,
+                                                  'Dim' + str(triple[2]): zs,
+                                                  'color': clusters}),
+                          x='Dim' + str(triple[0]),
+                          y='Dim' + str(triple[1]),
+                          z='Dim' + str(triple[2]),
+                          color='color',
+                          color_continuous_scale=rgb,
+                          opacity=.3).show()
 
-      xscale = (xmax - xmin) / 2
-      yscale = (ymax - ymin) / 2
-      mlim = min([abs(ymin), abs(ymax), abs(xmin), abs(xmax)])
+    if(displayPairs):
+        for pair in pairs:
+            p('dimensions', pair)
+            xs = X_projected[:, pair[0]]
+            ys = X_projected[:, pair[1]]
+            if(xminFixed == 0):
+                xmax = xs.max()
+                xmin = xs.min()
+                ymax = ys.max()
+                ymin = ys.min()
 
-      sns.scatterplot(xs, ys, alpha=alpha, hue=clusters, palette=sns.color_palette(
-        'brg', np.unique(clusters).shape[0]))  
-      
-      if type(pcs) == np.ndarray:    
-        nbColumns = pcs.shape[1]                      
-        for i in list(range(nbColumns)):
-            x1 = pcs[pair[0], i] * mlim  # xscale*0.5; exagérées
-            y1 = pcs[pair[1], i] * mlim  # yscale*0.5;#deux dimensions
+            xscale = (xmax - xmin) / 2
+            yscale = (ymax - ymin) / 2
+            mlim = min([abs(ymin), abs(ymax), abs(xmin), abs(xmax)])
 
-            if scaleEigenVectors:
-                x1 = pcs[pair[0], i] * xscale * 0.5  # ; exagérées
-                y1 = pcs[pair[1], i] * xscale * 0.5
+            sns.scatterplot(
+                xs,
+                ys,
+                alpha=alpha,
+                hue=clusters,
+                palette=sns.color_palette(
+                    'brg',
+                    np.unique(clusters).shape[0]))
 
-            plt.arrow(
-                0,
-                0,
-                x1 * 0.8,
-                y1 * 0.8,
-                width=0.04,
-                color='k',
-                alpha=0.8)
-            plt.text(
-                x1 * 0.9,
-                y1 * 0.9,
-                cols[i],
-                color='k',
-                ha='center',
-                va='center',
-                fontsize=32)
-            if(xminFixed==0):
-              if(x1 > xmax):
-                  xmax = x1
-              elif(x1 < xmin):
-                  xmin = x1
-              if(y1 > ymax):
-                  ymax = y1
-              elif(y1 < ymin):
-                  ymin = y1
-                  
-      plt.xlabel('dim:'+str(pair[0]))
-      plt.ylabel('dim:'+str(pair[1]))
-      plt.xlim(xmin, xmax)
-      plt.ylim(ymin, ymax)
+            if type(pcs) == np.ndarray:
+                nbColumns = pcs.shape[1]
+                for i in list(range(nbColumns)):
+                    x1 = pcs[pair[0], i] * mlim  # xscale*0.5; exagérées
+                    y1 = pcs[pair[1], i] * mlim  # yscale*0.5;#deux dimensions
 
-      if(type(centers) == np.ndarray):
-        plt.scatter(centers[:, pair[0]], centers[:, pair[1]],marker='x', color='k', linewidths=2, s=160)
+                    if scaleEigenVectors:
+                        x1 = pcs[pair[0], i] * xscale * 0.5  # ; exagérées
+                        y1 = pcs[pair[1], i] * xscale * 0.5
 
-      if title:
-        plt.title('dim'+str(pair[0])+'-'+str(pair[1])+'-'+title)
+                    plt.arrow(
+                        0,
+                        0,
+                        x1 * 0.8,
+                        y1 * 0.8,
+                        width=0.04,
+                        color='k',
+                        alpha=0.8)
+                    plt.text(
+                        x1 * 0.9,
+                        y1 * 0.9,
+                        cols[i],
+                        color='k',
+                        ha='center',
+                        va='center',
+                        fontsize=32)
+                    if(xminFixed == 0):
+                        if(x1 > xmax):
+                            xmax = x1
+                        elif(x1 < xmin):
+                            xmin = x1
+                        if(y1 > ymax):
+                            ymax = y1
+                        elif(y1 < ymin):
+                            ymin = y1
 
-      fn2='nbdim-'+str(nbDimensions)+'-dim'+str(pair[0])+'-'+str(pair[1])+'-'+fn
-      plt.savefig(fn2, bbox_inches='tight')
-      webp(fn2)
-      plt.close()
+            plt.xlabel('dim:' + str(pair[0]))
+            plt.ylabel('dim:' + str(pair[1]))
+            plt.xlim(xmin, xmax)
+            plt.ylim(ymin, ymax)
 
-  if type(pcs) == np.ndarray:
-      for i in pcs:
-          l = 0
-          dims[k] = {}
-          for j in i:
-              dims[k][cols[l]] = j
-              l += 1
-          k += 1
+            if(type(centers) == np.ndarray):
+                plt.scatter(centers[:, pair[0]], centers[:, pair[1]],
+                            marker='x', color='k', linewidths=2, s=160)
 
-  return dims
+            if title:
+                plt.title('dim' + str(pair[0]) +
+                          '-' + str(pair[1]) + '-' + title)
+
+            fn2 = 'nbdim-' + str(nbDimensions) + '-dim' + \
+                str(pair[0]) + '-' + str(pair[1]) + '-' + fn
+            plt.savefig(fn2, bbox_inches='tight')
+            webp(fn2)
+            plt.close()
+
+    if type(pcs) == np.ndarray:
+        for i in pcs:
+            l = 0
+            dims[k] = {}
+            for j in i:
+                dims[k][cols[l]] = j
+                l += 1
+            k += 1
+
+    return dims
+
 
 def splitOnSpace(x):
-  return x.split(' ')
+    return x.split(' ')
 #lst1 not in lst2
+
+
 def diff(lst1, lst2):
     lst3 = [value for value in lst1 if value not in lst2]
     return lst3
 
-#lst1 in lst2    
+#lst1 in lst2
+
+
 def intersection(lst1, lst2):
     lst3 = [value for value in lst1 if value in lst2]
     return lst3
-    
+
+
 intersect = intersection
 
 
@@ -1456,21 +1565,24 @@ def md5(x):
     res = hashlib.md5(str(x).encode())
     return res.hexdigest()
 
+
 def unikStrValues(x):
-  return ','.join(sorted(pd.Series.unique(x)))
-    
+    return ','.join(sorted(pd.Series.unique(x)))
+
+
 def labelsToNumeric(x):
     labelencoder = LabelEncoder()
-    return labelencoder.fit_transform(x),labelencoder    
-    
+    return labelencoder.fit_transform(x), labelencoder
+
+
 def toLogScaled(odf, cols):
-    labenc=0
-    df=odf.copy()
+    labenc = 0
+    df = odf.copy()
     if 'category' in list(df.columns.values):
-        df['category'],labenc=labelsToNumeric(df['category'])
-        
+        df['category'], labenc = labelsToNumeric(df['category'])
+
     for i in cols:
-        df[i] = df[i].apply(np.log).round(3)    
+        df[i] = df[i].apply(np.log).round(3)
 
     # passage au log .. pas d'erreur de conversion float -inf .???
     df.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
@@ -1478,17 +1590,18 @@ def toLogScaled(odf, cols):
     # Input contains infinity or a value too large for dtype('float64').
     df_scaled = _scaler.fit_transform(df[cols])
     df_scaled = pd.DataFrame(df_scaled, index=df.index, columns=cols)
-    return df_scaled,labenc
-    
-def percentageByCat(x,nb=10):
+    return df_scaled, labenc
+
+
+def percentageByCat(x, nb=10):
     global _x
-    tot=len(x)
-    ret={}
-    _x=x.value_counts()[:nb]
+    tot = len(x)
+    ret = {}
+    _x = x.value_counts()[:nb]
     for i in _x.index:
-        ret[i]=round(_x[i]*100/tot,2)
+        ret[i] = round(_x[i] * 100 / tot, 2)
     return json.dumps(ret)
-    
+
 
 # inject javascript function text2speech
 #html("<script>lang=document.body.parentNode.getAttribute('lang');lang='en';function say(x,vid,p,rate){var defaultVoice=0,r=rate||1;if(lang.indexOf('fr')>-1){defaultVoice=2;r=1.8;}/*hortense*/vid=vid||defaultVoice;p=p||1;x=x||0;if(!x){x=alpow.getText();}if(!x)return;console.log(x);var y=new SpeechSynthesisUtterance(),voices=window.speechSynthesis.getVoices();y.voice=voices[vid];y.voiceURI='native';y.volume=1;y.rate=r;y.pitch=p;y.text=x;y.lang='en-US';speechSynthesis.speak(y);return x;}</script>")
