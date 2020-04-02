@@ -9,6 +9,7 @@
 #}{Required modules installation
 #}{Alpow
 import alpow;from alpow import *
+message('cassandra online')
 sftp['cd']='stack5'
 alpow.webRepo='https://1.x24.fr/a/jupyter/'
 #dont store credentials within the repository
