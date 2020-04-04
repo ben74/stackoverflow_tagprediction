@@ -1,5 +1,5 @@
 import os
-modules='joblib Ipython sklearn seaborn flask webptools pysftp numpy requests'.split(' ')
+modules='joblib Ipython sklearn seaborn flask webptools pysftp numpy requests nltk'.split(' ')
 fn='versions.txt'
 os.system('pip freeze > '+fn)
 installed=''
