@@ -8,7 +8,7 @@ with open(fn) as f:
     
 for module in modules:
     if(module+'==' not in  installed):
-        os.system('pip3 install '+module)
+        os.system('pip install '+module)
         
 #help('modules')
 #print(list(sys.modules))
