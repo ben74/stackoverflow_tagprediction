@@ -23,6 +23,7 @@ else:
 np.random.seed(1983)
 
 nltk.download('stopwords')
+nltk.download('wordnet')
 alpow.stop_words = nltk.corpus.stopwords.words('english')
 alpow.lemma = nltk.WordNetLemmatizer()
 alpow.token = ToktokTokenizer()
