@@ -181,7 +181,7 @@ def EvaluateBagModel(mdl, x, WORDS_TO_INDEX, titleWeight=4, pca2=False, nb=1):
     predictions = mdl.predict(np.array(MBW))
     # p('dictsize:',dictsize,',WORDS_TO_INDEX:',len(WORDS_TO_INDEX),';mbwl:',len(MBW[0]))
     assert(len(mlbTrain.classes_) == len(predictions[0]))
-    predict_proba = proba(mdl, MBW)
+    predict_proba = proba(mdl, MBW, top=10)
     assert(len(mlbTrain.classes_) == len(predict_proba[0]))
 # modèle de base plus sensible
     tags1 = mlbTrain.inverse_transform(predictions)
