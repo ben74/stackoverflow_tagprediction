@@ -14,4 +14,5 @@ Written in python, Machine learning learning course subject ( in partnership wit
 
 ---
 <center>&copy; 2020 <a href='//alpow.fr#o:mlgithub'>Alpow</a> 🗲☻</center>
+
 ![visitors](https://visitor-badge.glitch.me/badge?page_id=gh:ben74:stackoverflowTagPrediction)
